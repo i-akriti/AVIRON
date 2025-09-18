@@ -644,6 +644,180 @@
             border: 1px solid rgba(255, 193, 7, 0.3);
         }
 
+        .status-enroute {
+            background: rgba(108, 117, 125, 0.2);
+            color: #6c757d;
+            border: 1px solid rgba(108, 117, 125, 0.3);
+        }
+
+        .status-arrived {
+            background: rgba(40, 167, 69, 0.2);
+            color: #28a745;
+            border: 1px solid rgba(40, 167, 69, 0.3);
+        }
+
+        .report-separator {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.3), transparent);
+            margin: 20px 0;
+        }
+
+        .report-card {
+            margin-bottom: 20px !important;
+            background: rgba(255, 255, 255, 0.05) !important;
+            border-radius: 15px !important;
+            padding: 20px !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            backdrop-filter: blur(10px) !important;
+            display: block !important;
+        }
+
+        .report-card:last-child {
+            margin-bottom: 0 !important;
+        }
+
+        #user-emergency-reports .report-card {
+            margin-bottom: 40px !important;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4) !important;
+            border: 2px solid rgba(0, 255, 255, 0.2) !important;
+            position: relative !important;
+            background: rgba(255, 255, 255, 0.08) !important;
+            backdrop-filter: blur(15px) !important;
+        }
+
+        #user-emergency-reports .report-card:last-child {
+            margin-bottom: 0 !important;
+        }
+
+        #user-emergency-reports .report-card::after {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.6), transparent);
+            border-radius: 2px;
+        }
+
+        #user-emergency-reports .report-card:last-child::after {
+            display: none;
+        }
+
+        /* Report Card Clickable */
+        .report-card {
+            cursor: pointer !important;
+            transition: all 0.3s ease !important;
+            user-select: none !important;
+        }
+
+        .report-card:hover {
+            transform: translateY(-3px) !important;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5) !important;
+            border-color: rgba(0, 255, 255, 0.4) !important;
+        }
+
+        .report-card:active {
+            transform: translateY(-1px) !important;
+        }
+
+        /* Click indicator */
+        .report-card::before {
+            content: '👆';
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 20px;
+            opacity: 0.6;
+            transition: opacity 0.3s ease;
+        }
+
+        .report-card:hover::before {
+            opacity: 1;
+        }
+
+        /* Report Toggle */
+        .report-toggle {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            padding: 10px 15px;
+            background: rgba(0, 255, 255, 0.1);
+            border-radius: 8px;
+            border: 1px solid rgba(0, 255, 255, 0.2);
+        }
+
+        .toggle-text {
+            color: #00ffff;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .toggle-icon {
+            color: #00ffff;
+            font-size: 16px;
+            transition: transform 0.3s ease;
+        }
+
+        .report-card.expanded .toggle-icon {
+            transform: rotate(180deg);
+        }
+
+        /* Rescue Team Details */
+        .report-details-expanded {
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(0, 255, 255, 0.05);
+            border-radius: 10px;
+            border: 1px solid rgba(0, 255, 255, 0.2);
+        }
+
+        .rescue-team-section h4 {
+            margin-bottom: 15px;
+            border-bottom: 1px solid rgba(0, 255, 255, 0.3);
+            padding-bottom: 8px;
+        }
+
+        .team-member {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .team-member-name {
+            color: #00ffff;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .team-member-phone {
+            color: #ffffff;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .team-member-department {
+            color: #cccccc;
+            font-size: 14px;
+        }
+
+        /* Additional spacing for better separation */
+        #user-emergency-reports {
+            padding: 20px 0;
+        }
+
+        #user-emergency-reports .report-card {
+            margin: 0 0 40px 0 !important;
+        }
+
+        #user-emergency-reports .report-card:last-child {
+            margin-bottom: 0 !important;
+        }
+
     </style>
 </head>
 <body>
@@ -669,6 +843,7 @@
             <div class="nav-tab" onclick="showTab('login')" id="login-tab">🔐 Login</div>
             <div class="nav-tab" onclick="showTab('register')" id="register-tab">📝 Register</div>
             <div class="nav-tab" onclick="showTab('user-home')" id="user-home-tab" style="display: none;">🏠 Home</div>
+            <div class="nav-tab" onclick="showTab('status')" id="status-tab" style="display: none;">⧉ Status</div>
             <div class="nav-tab" onclick="showTab('profile')" id="profile-tab" style="display: none;">👤 Profile</div>
             <div class="nav-tab" onclick="showTab('settings')" id="settings-tab" style="display: none;">⚙️ Settings</div>
         </div>
@@ -1144,6 +1319,10 @@
             if (tabName === 'user-home') {
                 document.getElementById('user-home-tab').classList.add('active');
                 document.getElementById('bottom-home-tab').classList.add('active');
+            } else if (tabName === 'status') {
+                document.getElementById('status-tab').classList.add('active');
+                document.getElementById('bottom-status-tab').classList.add('active');
+                loadUserReports();
             } else if (tabName === 'profile') {
                 document.getElementById('profile-tab').classList.add('active');
                 document.getElementById('bottom-profile-tab').classList.add('active');
@@ -1171,6 +1350,7 @@
             
             // Hide user navigation
             document.getElementById('user-home-tab').style.display = 'none';
+            document.getElementById('status-tab').style.display = 'none';
             document.getElementById('profile-tab').style.display = 'none';
             document.getElementById('settings-tab').style.display = 'none';
 
@@ -1197,6 +1377,7 @@
             
             // Show user navigation
             document.getElementById('user-home-tab').style.display = 'block';
+            document.getElementById('status-tab').style.display = 'block';
             document.getElementById('profile-tab').style.display = 'block';
             document.getElementById('settings-tab').style.display = 'block';
 
@@ -1426,26 +1607,14 @@
 
             const db = firebase.database();
             db.ref('emergencyReports').orderByChild('userId').equalTo(currentUser.uid).once('value').then(snapshot => {
-                const reportsList = document.getElementById('user-reports-list');
-                reportsList.innerHTML = '';
-
-                if (!snapshot.exists()) {
-                    reportsList.innerHTML = '<p style="color: #cccccc; text-align: center; padding: 20px;">No emergency reports found.</p>';
-                    return;
-                }
-
                 const reports = [];
-                snapshot.forEach(childSnapshot => {
-                    reports.push({ id: childSnapshot.key, ...childSnapshot.val() });
-                });
-
-                // Sort by timestamp
-                reports.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-
-                reports.forEach(report => {
-                    const reportCard = createReportCard(report, report.id, true);
-                    reportsList.appendChild(reportCard);
-                });
+                if (snapshot.exists()) {
+                    snapshot.forEach(childSnapshot => {
+                        reports.push({ id: childSnapshot.key, ...childSnapshot.val() });
+                    });
+                }
+                
+                displayUserReports(reports);
             });
         }
 
@@ -1668,15 +1837,19 @@
             sortedReports.forEach(report => {
                 const date = new Date(report.timestamp || report.createdAt).toLocaleString();
                 const statusClass = report.status === 'rescued' ? 'status-rescued' : 
+                                  report.status === 'arrived' ? 'status-arrived' :
+                                  report.status === 'enroute' ? 'status-enroute' :
                                   report.status === 'assigned' ? 'status-assigned' : 
                                   report.status === 'accepted' ? 'status-accepted' : 'status-pending';
                 
                 const statusText = report.status === 'accepted' ? 'Accepted' : 
                                  report.status === 'assigned' ? 'Team Assigned' :
+                                 report.status === 'enroute' ? 'En Route' :
+                                 report.status === 'arrived' ? 'Arrived' :
                                  report.status === 'rescued' ? 'Rescued' : 'Pending';
                 
                 html += `
-                    <div class="report-card">
+                    <div class="report-card" onclick="toggleReportDetails('${report.id}')">
                         <div class="report-header">
                             <div>
                                 <div class="report-title">${report.disasterType.toUpperCase()}</div>
@@ -1694,11 +1867,50 @@
                             ${report.teamInfo ? `<div class="report-detail"><strong>Rescue Team:</strong> ${report.teamInfo}</div>` : ''}
                             ${report.updateMessage ? `<div class="report-detail"><strong>Update:</strong> ${report.updateMessage}</div>` : ''}
                         </div>
+                        
+                        <div class="report-details-expanded" id="details-${report.id}" style="display: none;">
+                            <div class="rescue-team-section">
+                                <h4 style="color: #00ffff; margin-bottom: 15px; border-bottom: 1px solid rgba(0, 255, 255, 0.3); padding-bottom: 8px;">Rescue Team Details</h4>
+                                <div class="rescue-team-info">
+                                    <div class="team-member">
+                                        <div class="team-member-name">${report.assignedTeamName || 'Team Not Assigned'}</div>
+                                        <div class="team-member-phone">${report.assignedTeamPhone || 'Contact not available'}</div>
+                                        <div class="team-member-department">${report.assignedTeamDept || 'Department not specified'}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="report-toggle">
+                            <span class="toggle-text">Click to view rescue team details</span>
+                            <span class="toggle-icon">▼</span>
+                        </div>
                     </div>
                 `;
             });
 
             container.innerHTML = html;
+        }
+
+        // Toggle report details
+        function toggleReportDetails(reportId) {
+            console.log('Toggle clicked for report:', reportId);
+            const detailsElement = document.getElementById('details-' + reportId);
+            const reportCard = detailsElement.closest('.report-card');
+            const toggleIcon = reportCard.querySelector('.toggle-icon');
+            const toggleText = reportCard.querySelector('.toggle-text');
+            
+            if (detailsElement.style.display === 'none' || detailsElement.style.display === '') {
+                detailsElement.style.display = 'block';
+                reportCard.classList.add('expanded');
+                toggleText.textContent = 'Click to hide rescue team details';
+                console.log('Details expanded');
+            } else {
+                detailsElement.style.display = 'none';
+                reportCard.classList.remove('expanded');
+                toggleText.textContent = 'Click to view rescue team details';
+                console.log('Details collapsed');
+            }
         }
     </script>
 </body>

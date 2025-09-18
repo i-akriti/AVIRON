@@ -226,6 +226,16 @@
             padding: 10px;
         }
 
+        .form-select option:disabled {
+            color: #666666;
+            background: #2a2a2a;
+        }
+
+        .form-select option:disabled:selected {
+            color: #888888;
+            background: #333333;
+        }
+
         /* Buttons */
         .btn {
             padding: 12px 24px;
@@ -813,8 +823,8 @@
                 
                 <div class="form-group">
                     <label class="form-label">Department</label>
-                    <select id="register-department" class="form-select">
-                        <option value="">Select Department</option>
+                    <select id="register-department" class="form-select" required>
+                        <option value="" disabled selected>Select Department</option>
                         <option value="fire">Fire Department</option>
                         <option value="medical">Medical Emergency</option>
                         <option value="police">Police Department</option>
@@ -951,8 +961,8 @@
                 
                 <div class="form-group">
                     <label class="form-label">Department</label>
-                    <select id="profile-department" class="form-select">
-                        <option value="">Select Department</option>
+                    <select id="profile-department" class="form-select" required>
+                        <option value="" disabled selected>Select Department</option>
                         <option value="fire">Fire Department</option>
                         <option value="medical">Medical Emergency</option>
                         <option value="police">Police Department</option>
