@@ -1,0 +1,1705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVIRON - Disaster Response System</title>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    
+    <style>
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        /* Glassmorphism Container */
+        .glass-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .glass-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Neon Effects */
+        .neon-text {
+            text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff, 0 0 30px #00ffff;
+            animation: neon-pulse 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes neon-pulse {
+            from { text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff, 0 0 30px #00ffff; }
+            to { text-shadow: 0 0 20px #00ffff, 0 0 30px #00ffff, 0 0 40px #00ffff; }
+        }
+
+        /* Main App Container */
+        .app-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .logo {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin: 0;
+            background: linear-gradient(45deg, #00ffff, #ff00ff, #ffff00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            color: #cccccc;
+            margin: 0;
+        }
+
+        /* Navigation */
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .nav-tab {
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            color: #ffffff;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .nav-tab:hover, .nav-tab.active {
+            background: rgba(0, 255, 255, 0.2);
+            border-color: #00ffff;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 255, 0.3);
+        }
+
+        /* Content Areas */
+        .content-area {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .content-area.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Forms */
+        .form-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #00ffff;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            color: #ffffff;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #00ffff;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        /* Fix dropdown styling */
+        .form-select {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2300ffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 16px;
+            padding-right: 40px;
+        }
+
+        .form-select option {
+            background: #1a1a2e;
+            color: #ffffff;
+            padding: 10px;
+        }
+
+        .form-input::placeholder, .form-textarea::placeholder {
+            color: #aaaaaa;
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #00ffff, #0080ff);
+            color: #000000;
+            box-shadow: 0 4px 15px rgba(0, 255, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 255, 255, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: linear-gradient(45deg, #ff4444, #cc0000);
+            color: #ffffff;
+        }
+
+        .btn-success {
+            background: linear-gradient(45deg, #44ff44, #00cc00);
+            color: #000000;
+        }
+
+        /* Cards */
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-header {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #00ffff;
+        }
+
+        .card-content {
+            line-height: 1.6;
+        }
+
+        /* Location Button */
+        .location-btn {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: #ffffff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-left: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .location-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+        }
+
+        /* Status Indicators */
+        .status-pending {
+            color: #ffaa00;
+            font-weight: bold;
+        }
+
+        .status-rescued {
+            color: #00ff00;
+            font-weight: bold;
+        }
+
+        .status-assigned {
+            color: #0080ff;
+            font-weight: bold;
+        }
+
+        /* Loading Spinner */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #00ffff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Bottom Navigation Bar for Mobile */
+        .bottom-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(0, 255, 255, 0.3);
+            padding: 10px 0;
+            z-index: 1000;
+        }
+
+        .bottom-nav-items {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .bottom-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 8px 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 60px;
+            color: #cccccc;
+        }
+
+        .bottom-nav-item:hover {
+            background: rgba(0, 255, 255, 0.1);
+            color: #ffffff;
+        }
+
+        .bottom-nav-item.active {
+            background: rgba(0, 255, 255, 0.2);
+            color: #00ffff;
+        }
+
+        .bottom-nav-icon {
+            font-size: 18px;
+            margin-bottom: 4px;
+            font-weight: bold;
+        }
+
+        .bottom-nav-text {
+            font-size: 11px;
+            font-weight: 500;
+            color: #cccccc;
+        }
+
+        .bottom-nav-item:hover .bottom-nav-text {
+            color: #ffffff;
+        }
+
+        .bottom-nav-item.active .bottom-nav-text {
+            color: #00ffff;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .app-container {
+                padding: 10px;
+                padding-bottom: 80px; /* Space for bottom nav */
+            }
+
+            .logo {
+                font-size: 2rem;
+            }
+
+            .nav-tabs {
+                display: none; /* Hide top nav on mobile */
+            }
+
+            .bottom-nav {
+                display: block; /* Show bottom nav on mobile */
+            }
+
+            .form-container {
+                padding: 20px;
+            }
+
+            .card {
+                padding: 15px;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .bottom-nav {
+                display: none; /* Hide bottom nav on desktop */
+            }
+        }
+
+        /* Error and Success Messages */
+        .message {
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .message-error {
+            background: rgba(255, 68, 68, 0.2);
+            border: 1px solid rgba(255, 68, 68, 0.5);
+            color: #ff4444;
+        }
+
+        .message-success {
+            background: rgba(68, 255, 68, 0.2);
+            border: 1px solid rgba(68, 255, 68, 0.5);
+            color: #44ff44;
+        }
+
+        .message-info {
+            background: rgba(0, 255, 255, 0.2);
+            border: 1px solid rgba(0, 255, 255, 0.5);
+            color: #00ffff;
+        }
+
+        /* Hidden class */
+        .hidden {
+            display: none !important;
+        }
+
+        /* Emergency Contact Styles */
+        .emergency-contact-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .emergency-contact-info {
+            flex: 1;
+        }
+
+        .emergency-contact-name {
+            font-weight: bold;
+            color: #00ffff;
+            margin-bottom: 5px;
+        }
+
+        .emergency-contact-phone {
+            color: #cccccc;
+            font-size: 14px;
+        }
+
+        .emergency-contact-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 12px;
+            border-radius: 6px;
+        }
+
+        /* Profile Completion Popup */
+        .profile-popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .profile-popup-content {
+            background: rgba(26, 26, 46, 0.95);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .profile-popup h3 {
+            color: #00ffff;
+            margin-bottom: 20px;
+        }
+
+        .profile-popup p {
+            color: #cccccc;
+            margin-bottom: 20px;
+        }
+
+        /* Header Styles */
+        .header {
+            padding: 15px 0;
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0, 255, 255, 0.3);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .header-content.logged-out {
+            justify-content: center;
+        }
+
+        .header-left {
+            flex: 1;
+        }
+
+        .header-left.logged-out {
+            flex: none;
+            text-align: center;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+        }
+
+        .subtitle-container {
+            text-align: center;
+            padding: 10px 0;
+            background: rgba(26, 26, 46, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0, 255, 255, 0.2);
+        }
+
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 0, 0, 0.2);
+            border-color: rgba(255, 0, 0, 0.5);
+            color: #ff4444;
+            transform: translateY(-2px);
+        }
+
+        /* Status Tab Styles */
+        .status-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .status-title {
+            color: #00ffff;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .status-item:last-child {
+            border-bottom: none;
+        }
+
+        .status-label {
+            color: #cccccc;
+            font-weight: 500;
+        }
+
+        .status-value {
+            color: #ffffff;
+            font-weight: bold;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .status-pending {
+            background: rgba(255, 165, 0, 0.2);
+            color: #ffa500;
+            border: 1px solid rgba(255, 165, 0, 0.3);
+        }
+
+        .status-rescued {
+            background: rgba(0, 255, 0, 0.2);
+            color: #00ff00;
+            border: 1px solid rgba(0, 255, 0, 0.3);
+        }
+
+        .status-assigned {
+            background: rgba(0, 123, 255, 0.2);
+            color: #007bff;
+            border: 1px solid rgba(0, 123, 255, 0.3);
+        }
+
+        .status-accepted {
+            background: rgba(255, 193, 7, 0.2);
+            color: #ffc107;
+            border: 1px solid rgba(255, 193, 7, 0.3);
+        }
+
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-content" id="header-content">
+                <div class="header-left" id="header-left">
+                    <h1 class="logo neon-text">AVIRON</h1>
+                </div>
+                <div class="header-right">
+                    <button class="logout-btn" onclick="logout()" id="header-logout-btn" style="display: none;">↪ Logout</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="subtitle-container">
+            <p class="subtitle">Disaster Response System</p>
+        </div>
+
+        <!-- Desktop Navigation -->
+        <div class="nav-tabs">
+            <div class="nav-tab" onclick="showTab('login')" id="login-tab">🔐 Login</div>
+            <div class="nav-tab" onclick="showTab('register')" id="register-tab">📝 Register</div>
+            <div class="nav-tab" onclick="showTab('user-home')" id="user-home-tab" style="display: none;">🏠 Home</div>
+            <div class="nav-tab" onclick="showTab('profile')" id="profile-tab" style="display: none;">👤 Profile</div>
+            <div class="nav-tab" onclick="showTab('settings')" id="settings-tab" style="display: none;">⚙️ Settings</div>
+        </div>
+
+        <!-- Mobile Bottom Navigation -->
+        <div class="bottom-nav">
+            <div class="bottom-nav-items">
+                <div class="bottom-nav-item" onclick="showTab('user-home')" id="bottom-home-tab" style="display: none;">
+                    <div class="bottom-nav-icon">⌂</div>
+                    <div class="bottom-nav-text">Home</div>
+                </div>
+                <div class="bottom-nav-item" onclick="showTab('status')" id="bottom-status-tab" style="display: none;">
+                    <div class="bottom-nav-icon">⧉</div>
+                    <div class="bottom-nav-text">Status</div>
+                </div>
+                <div class="bottom-nav-item" onclick="showTab('profile')" id="bottom-profile-tab" style="display: none;">
+                    <div class="bottom-nav-icon">👤</div>
+                    <div class="bottom-nav-text">Profile</div>
+                </div>
+                <div class="bottom-nav-item" onclick="showTab('settings')" id="bottom-settings-tab" style="display: none;">
+                    <div class="bottom-nav-icon">⚙</div>
+                    <div class="bottom-nav-text">Settings</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Login Tab -->
+        <div id="login" class="content-area active">
+            <div class="glass-container form-container">
+                
+                <h2 style="text-align: center; margin-bottom: 30px; color: #00ffff;">User Login</h2>
+                
+                
+                
+                <div id="login-messages"></div>
+                
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" id="login-email" class="form-input" placeholder="Enter your email">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" id="login-password" class="form-input" placeholder="Enter your password">
+                </div>
+                
+                <div style="text-align: center; margin: 30px 0;">
+                    <button class="btn btn-primary" onclick="loginWithEmail()" style="margin: 5px;">Login with Email</button>
+                    <button class="btn btn-primary" onclick="loginWithGoogle()" style="margin: 5px;">Login with Google</button>
+                </div>
+                
+                <div style="text-align: center; margin-top: 20px;">
+                    <p id="register-link-text">Don't have an account? <a href="#" onclick="showRegister()" style="color: #00ffff; text-decoration: none;">Register here</a></p>
+                    <p style="color: #cccccc; margin-top: 10px;">Rescue Team? <a href="rescue.html" style="color: #00ffff; text-decoration: none;">Access Rescue Portal</a></p>
+                </div>
+                
+                <!-- Registration Form (Hidden by default) -->
+                <div id="register-form" style="display: none; margin-top: 30px; padding-top: 30px; border-top: 1px solid rgba(255, 255, 255, 0.2);">
+                    <h3 style="text-align: center; margin-bottom: 20px; color: #00ffff;">Create Account</h3>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" id="register-name" class="form-input" placeholder="Enter your full name">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" id="register-email" class="form-input" placeholder="Enter your email">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Password</label>
+                        <input type="password" id="register-password" class="form-input" placeholder="Create a password">
+                    </div>
+                    
+                    
+                    <div style="text-align: center;">
+                        <button class="btn btn-primary" onclick="registerWithEmail()">Create Account</button>
+                        <button class="btn btn-secondary" onclick="hideRegister()" style="margin-left: 10px;">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Home Tab -->
+        <div id="user-home" class="content-area">
+            <div class="glass-container form-container">
+                
+                <h2 style="text-align: center; margin-bottom: 30px; color: #00ffff;">Emergency Report</h2>
+                
+                <div id="user-messages"></div>
+                
+                
+                <div class="form-group">
+                    <label class="form-label">Location</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" id="reporter-location" class="form-input" placeholder="Enter location or use current location" style="flex: 1;">
+                        <button class="location-btn" onclick="getCurrentLocation()">📍 Get Location</button>
+                    </div>
+                    <div id="location-info" style="margin-top: 10px; font-size: 14px; color: #cccccc;"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Disaster Type</label>
+                    <select id="disaster-type" class="form-select">
+                        <option value="">Select disaster type</option>
+                        <option value="fire">Fire</option>
+                        <option value="flood">Flood</option>
+                        <option value="earthquake">Earthquake</option>
+                        <option value="medical">Medical Emergency</option>
+                        <option value="accident">Traffic Accident</option>
+                        <option value="storm">Storm</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea id="disaster-description" class="form-textarea" placeholder="Describe the situation in detail..."></textarea>
+                </div>
+                
+                <div style="text-align: center;">
+                    <button class="btn btn-primary" onclick="submitEmergencyReport()" style="font-size: 18px; padding: 15px 30px;">
+                        ⚠ SEND HELP REQUEST
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Tab -->
+        <div id="profile" class="content-area">
+            <div class="glass-container form-container">
+                
+                <h2 style="text-align: center; margin-bottom: 30px; color: #00ffff;">Your Profile</h2>
+                
+                <div id="profile-messages"></div>
+                
+                <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" id="profile-name" class="form-input" placeholder="Enter your full name">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" id="profile-email" class="form-input" placeholder="Enter your email" readonly>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Phone Number</label>
+                    <input type="tel" id="profile-phone" class="form-input" placeholder="Enter your phone number">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Emergency Contacts</label>
+                    <div id="emergency-contacts-list"></div>
+                    <button class="btn btn-secondary" onclick="addEmergencyContact()" id="add-contact-btn" style="margin-top: 10px;">+ Add Emergency Contact</button>
+                </div>
+                
+                <div style="text-align: center; margin: 30px 0;">
+                    <button class="btn btn-primary" onclick="updateProfile()">Save Profile</button>
+                </div>
+                
+                <div id="user-reports" style="margin-top: 40px;">
+                    <h3 style="color: #00ffff; margin-bottom: 20px;">Your Emergency Reports</h3>
+                    <div id="user-reports-list"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Tab -->
+        <div id="settings" class="content-area">
+            <div class="glass-container form-container">
+                
+                <h2 style="text-align: center; margin-bottom: 30px; color: #00ffff;">Settings</h2>
+                
+                <div id="settings-messages"></div>
+                
+                <div class="card">
+                    <div class="card-header">Notification Preferences</div>
+                    <div class="card-content">
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 10px;">
+                                <input type="checkbox" id="notifications-enabled" checked>
+                                Enable push notifications
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 10px;">
+                                <input type="checkbox" id="email-notifications" checked>
+                                Enable email notifications
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">Location Services</div>
+                    <div class="card-content">
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 10px;">
+                                <input type="checkbox" id="auto-location" checked>
+                                Automatically use current location for reports
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">Account Management</div>
+                    <div class="card-content">
+                        <div style="text-align: center;">
+                            <button class="btn btn-secondary" onclick="changePassword()" style="margin: 5px;">Change Password</button>
+                            <button class="btn btn-danger" onclick="deleteAccount()" style="margin: 5px;">Delete Account</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="text-align: center; margin-top: 30px;">
+                    <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Tab -->
+        <div id="status" class="content-area">
+            <div class="glass-container form-container">
+                <h2 style="text-align: center; margin-bottom: 30px; color: #00ffff;">Your Emergency Reports</h2>
+                
+                <div id="status-messages"></div>
+                
+                <div id="user-emergency-reports">
+                    <p style="color: #cccccc; text-align: center; padding: 40px;">Loading your emergency reports...</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBGiZR281y1uqGKVu31KrGXAuqWDvKdQTA",
+            authDomain: "aviron-e8566.firebaseapp.com",
+            projectId: "aviron-e8566",
+            storageBucket: "aviron-e8566.firebasestorage.app",
+            messagingSenderId: "330399857917",
+            appId: "1:330399857917:web:a69033540c758430bb5294"
+        };
+
+        // Check if Firebase is properly initialized
+        let firebaseInitialized = false;
+
+        // Initialize Firebase with error handling
+        try {
+            firebase.initializeApp(firebaseConfig);
+            const auth = firebase.auth();
+            const db = firebase.database();
+            firebaseInitialized = true;
+        } catch (error) {
+            firebaseInitialized = false;
+        }
+
+        // Global variables
+        let currentUser = null;
+        let userLocation = null;
+        let reportsListener = null;
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check authentication state
+            if (firebaseInitialized) {
+                const auth = firebase.auth();
+                auth.onAuthStateChanged(function(user) {
+                    if (user) {
+                        currentUser = user;
+                        loadUserProfile();
+                        showUserInterface();
+                    } else {
+                        showLoginInterface();
+                    }
+                });
+            } else {
+                showLoginInterface();
+            }
+
+            // Set up search and filter listeners
+            document.getElementById('search-reports').addEventListener('input', filterReports);
+            document.getElementById('filter-type').addEventListener('change', filterReports);
+            document.getElementById('filter-status').addEventListener('change', filterReports);
+        });
+
+        // Authentication Functions
+        function loginWithEmail() {
+            if (!firebaseInitialized) {
+                showMessage('login-messages', 'Firebase not initialized. Please check your configuration.', 'error');
+                return;
+            }
+
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            if (!email || !password) {
+                showMessage('login-messages', 'Please fill in all fields', 'error');
+                return;
+            }
+
+            const auth = firebase.auth();
+            
+            auth.signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    showMessage('login-messages', 'Login successful! Redirecting...', 'success');
+                    // The auth state change listener will handle the UI update
+                })
+                .catch(error => {
+                    let errorMessage = 'Login failed: ';
+                    switch(error.code) {
+                        case 'auth/user-not-found':
+                            errorMessage += 'No account found with this email. Please register first.';
+                            break;
+                        case 'auth/wrong-password':
+                            errorMessage += 'Incorrect password. Please try again.';
+                            break;
+                        case 'auth/invalid-email':
+                            errorMessage += 'Invalid email address.';
+                            break;
+                        case 'auth/user-disabled':
+                            errorMessage += 'This account has been disabled.';
+                            break;
+                        case 'auth/too-many-requests':
+                            errorMessage += 'Too many failed attempts. Please try again later.';
+                            break;
+                        case 'auth/invalid-credential':
+                            errorMessage += 'Invalid email or password.';
+                            break;
+                        default:
+                            errorMessage += error.message;
+                    }
+                    showMessage('login-messages', errorMessage, 'error');
+                });
+        }
+
+        function loginWithGoogle() {
+            if (!firebaseInitialized) {
+                showMessage('login-messages', 'Firebase not initialized. Please check your configuration.', 'error');
+                return;
+            }
+
+            const provider = new firebase.auth.GoogleAuthProvider();
+            const auth = firebase.auth();
+            auth.signInWithPopup(provider)
+                .then((result) => {
+                    showMessage('login-messages', 'Google login successful! Redirecting...', 'success');
+                    // The auth state change listener will handle the UI update
+                })
+                .catch(error => {
+                    let errorMessage = 'Google login failed: ';
+                    switch(error.code) {
+                        case 'auth/popup-closed-by-user':
+                            errorMessage += 'Login popup was closed. Please try again.';
+                            break;
+                        case 'auth/popup-blocked':
+                            errorMessage += 'Popup was blocked by browser. Please allow popups.';
+                            break;
+                        case 'auth/cancelled-popup-request':
+                            errorMessage += 'Login was cancelled.';
+                            break;
+                        default:
+                            errorMessage += error.message;
+                    }
+                    showMessage('login-messages', errorMessage, 'error');
+                });
+        }
+
+        function registerWithEmail() {
+            if (!firebaseInitialized) {
+                showMessage('login-messages', 'Firebase not initialized. Please check your configuration.', 'error');
+                return;
+            }
+
+            const name = document.getElementById('register-name').value;
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+
+            if (!name || !email || !password) {
+                showMessage('login-messages', 'Please fill in all fields', 'error');
+                return;
+            }
+
+            if (password.length < 6) {
+                showMessage('login-messages', 'Password must be at least 6 characters long', 'error');
+                return;
+            }
+
+            const auth = firebase.auth();
+            const db = firebase.database();
+            
+            auth.createUserWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    console.log('Registration successful:', userCredential.user);
+                    // Save user profile
+                    return db.ref('users/' + userCredential.user.uid).set({
+                        name: name,
+                        email: email,
+                        role: 'user', // Default role for main portal
+                        phone: '',
+                        emergencyContacts: [],
+                        createdAt: firebase.database.ServerValue.TIMESTAMP
+                    });
+                })
+                .then(() => {
+                    showMessage('login-messages', 'Account created successfully! You are now logged in.', 'success');
+                    hideRegister();
+                    // The auth state change listener will handle the UI update
+                })
+                .catch(error => {
+                    let errorMessage = 'Registration failed: ';
+                    switch(error.code) {
+                        case 'auth/email-already-in-use':
+                            errorMessage += 'An account with this email already exists. Please try logging in instead.';
+                            break;
+                        case 'auth/invalid-email':
+                            errorMessage += 'Invalid email address.';
+                            break;
+                        case 'auth/weak-password':
+                            errorMessage += 'Password is too weak. Please use at least 6 characters.';
+                            break;
+                        case 'auth/operation-not-allowed':
+                            errorMessage += 'Email/password accounts are not enabled in Firebase Console.';
+                            break;
+                        default:
+                            errorMessage += error.message;
+                    }
+                    showMessage('login-messages', errorMessage, 'error');
+                });
+        }
+
+        function logout() {
+            if (!firebaseInitialized) {
+                showMessage('login-messages', 'Firebase not initialized', 'error');
+                return;
+            }
+            
+            const auth = firebase.auth();
+            auth.signOut().then(() => {
+                showMessage('login-messages', 'Logged out successfully', 'success');
+                if (reportsListener) {
+                    reportsListener();
+                }
+            }).catch(error => {
+                showMessage('login-messages', 'Logout failed: ' + error.message, 'error');
+            });
+        }
+
+
+        // UI Functions
+        function showTab(tabName) {
+            // Hide all tabs
+            const tabs = document.querySelectorAll('.content-area');
+            tabs.forEach(tab => tab.classList.remove('active'));
+
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+
+            // Update navigation
+            const navTabs = document.querySelectorAll('.nav-tab');
+            navTabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Update bottom navigation
+            const bottomNavItems = document.querySelectorAll('.bottom-nav-item');
+            bottomNavItems.forEach(item => item.classList.remove('active'));
+
+            // Update desktop navigation
+            if (tabName === 'user-home') {
+                document.getElementById('user-home-tab').classList.add('active');
+                document.getElementById('bottom-home-tab').classList.add('active');
+            } else if (tabName === 'profile') {
+                document.getElementById('profile-tab').classList.add('active');
+                document.getElementById('bottom-profile-tab').classList.add('active');
+            } else if (tabName === 'settings') {
+                document.getElementById('settings-tab').classList.add('active');
+                document.getElementById('bottom-settings-tab').classList.add('active');
+            } else if (tabName === 'rescue-dashboard') {
+                document.getElementById('rescue-dashboard-tab').classList.add('active');
+                document.getElementById('bottom-rescue-tab').classList.add('active');
+            }
+
+            // Load specific content
+            if (tabName === 'profile') {
+                loadUserProfile();
+                loadUserReports();
+            } else if (tabName === 'status') {
+                loadStatusDashboard();
+            }
+        }
+
+        function showLoginInterface() {
+            // Show login/register tabs
+            document.getElementById('login-tab').style.display = 'block';
+            document.getElementById('register-tab').style.display = 'block';
+            
+            // Hide user navigation
+            document.getElementById('user-home-tab').style.display = 'none';
+            document.getElementById('profile-tab').style.display = 'none';
+            document.getElementById('settings-tab').style.display = 'none';
+
+            // Hide mobile bottom navigation
+            document.getElementById('bottom-home-tab').style.display = 'none';
+            document.getElementById('bottom-profile-tab').style.display = 'none';
+            document.getElementById('bottom-settings-tab').style.display = 'none';
+            document.getElementById('bottom-status-tab').style.display = 'none';
+
+            // Hide header logout button
+            document.getElementById('header-logout-btn').style.display = 'none';
+
+            // Center the logo when logged out
+            document.getElementById('header-content').classList.add('logged-out');
+            document.getElementById('header-left').classList.add('logged-out');
+
+            showTab('login');
+        }
+
+        function showUserInterface() {
+            // Hide login/register tabs
+            document.getElementById('login-tab').style.display = 'none';
+            document.getElementById('register-tab').style.display = 'none';
+            
+            // Show user navigation
+            document.getElementById('user-home-tab').style.display = 'block';
+            document.getElementById('profile-tab').style.display = 'block';
+            document.getElementById('settings-tab').style.display = 'block';
+
+            // Show mobile bottom navigation
+            document.getElementById('bottom-home-tab').style.display = 'flex';
+            document.getElementById('bottom-profile-tab').style.display = 'flex';
+            document.getElementById('bottom-settings-tab').style.display = 'flex';
+            document.getElementById('bottom-status-tab').style.display = 'flex';
+
+            // Show header logout button
+            document.getElementById('header-logout-btn').style.display = 'block';
+
+            // Remove logged-out classes to show normal layout
+            document.getElementById('header-content').classList.remove('logged-out');
+            document.getElementById('header-left').classList.remove('logged-out');
+
+            showTab('user-home');
+        }
+
+        function showRegister() {
+            document.getElementById('register-form').style.display = 'block';
+            document.getElementById('register-link-text').innerHTML = 'Already have an account? <a href="#" onclick="hideRegister()" style="color: #00ffff; text-decoration: none;">Login here</a>';
+        }
+
+        function hideRegister() {
+            document.getElementById('register-form').style.display = 'none';
+            document.getElementById('register-link-text').innerHTML = 'Don\'t have an account? <a href="#" onclick="showRegister()" style="color: #00ffff; text-decoration: none;">Register here</a>';
+        }
+
+        // Location Functions
+        function getCurrentLocation() {
+            if (!navigator.geolocation) {
+                showMessage('user-messages', 'Geolocation is not supported by this browser', 'error');
+                return;
+            }
+
+            const locationInfo = document.getElementById('location-info');
+            locationInfo.innerHTML = '<div class="loading"></div> Getting location...';
+
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    userLocation = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
+                    
+                    const coordinates = `${userLocation.lat.toFixed(6)}, ${userLocation.lng.toFixed(6)}`;
+                    locationInfo.innerHTML = `📍 Coordinates: ${coordinates}`;
+                    document.getElementById('reporter-location').value = coordinates;
+                    
+                    // Get location name using reverse geocoding
+                    getLocationName(userLocation.lat, userLocation.lng);
+                },
+                function(error) {
+                    let errorMessage = 'Unable to retrieve location: ';
+                    switch(error.code) {
+                        case error.PERMISSION_DENIED:
+                            errorMessage += 'Permission denied';
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            errorMessage += 'Position unavailable';
+                            break;
+                        case error.TIMEOUT:
+                            errorMessage += 'Request timeout';
+                            break;
+                        default:
+                            errorMessage += 'Unknown error';
+                            break;
+                    }
+                    locationInfo.innerHTML = `<span style="color: #ff4444;">${errorMessage}</span>`;
+                }
+            );
+        }
+
+        function getLocationName(lat, lng) {
+            // Using OpenStreetMap Nominatim API for reverse geocoding
+            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.display_name) {
+                        const locationName = data.display_name.split(',').slice(0, 3).join(', '); // Get first 3 parts
+                        const locationInfo = document.getElementById('location-info');
+                        locationInfo.innerHTML = `
+                            <div style="color: #00ff00;">📍 Coordinates: ${lat.toFixed(6)}, ${lng.toFixed(6)}</div>
+                            <div style="color: #00ffff; font-size: 14px; margin-top: 5px;">📍 ${locationName}</div>
+                        `;
+                        
+                        // Store location name for the report
+                        userLocation.name = locationName;
+                    }
+                })
+                .catch(error => {
+                    console.log('Reverse geocoding failed:', error);
+                    // Don't show error to user, coordinates are still captured
+                });
+        }
+
+        // Emergency Report Functions
+        function submitEmergencyReport() {
+            // Check if profile is complete
+            if (!isProfileComplete()) {
+                showProfileCompletionPopup();
+                return;
+            }
+
+            const location = document.getElementById('reporter-location').value;
+            const disasterType = document.getElementById('disaster-type').value;
+            const description = document.getElementById('disaster-description').value;
+
+            if (!location || !disasterType || !description) {
+                showMessage('user-messages', 'Please fill in all fields', 'error');
+                return;
+            }
+
+            // Get user name from profile
+            const db = firebase.database();
+            db.ref('users/' + currentUser.uid).once('value').then(snapshot => {
+                const userData = snapshot.val();
+                const reporterName = userData ? userData.name : 'Unknown User';
+
+                const reportData = {
+                    reporterName: reporterName,
+                    location: location,
+                    locationName: userLocation ? userLocation.name : null,
+                    disasterType: disasterType,
+                    description: description,
+                    userId: currentUser.uid,
+                    userEmail: currentUser.email,
+                    status: 'pending',
+                    coordinates: userLocation,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP,
+                    createdAt: new Date().toISOString()
+                };
+
+                db.ref('emergencyReports').push(reportData)
+                    .then(() => {
+                        showMessage('user-messages', 'Emergency report submitted successfully! Help is on the way.', 'success');
+                        // Clear form
+                        document.getElementById('reporter-location').value = '';
+                        document.getElementById('disaster-type').value = '';
+                        document.getElementById('disaster-description').value = '';
+                        userLocation = null;
+                        document.getElementById('location-info').innerHTML = '';
+                    })
+                    .catch(error => {
+                        showMessage('user-messages', 'Failed to submit report: ' + error.message, 'error');
+                    });
+            });
+        }
+
+        // Profile Functions
+        function loadUserProfile() {
+            if (!currentUser) return;
+
+            const db = firebase.database();
+            db.ref('users/' + currentUser.uid).once('value').then(snapshot => {
+                if (snapshot.exists()) {
+                    const userData = snapshot.val();
+                    document.getElementById('profile-name').value = userData.name || '';
+                    document.getElementById('profile-email').value = userData.email || '';
+                    document.getElementById('profile-phone').value = userData.phone || '';
+                    
+                    // Load emergency contacts
+                    loadEmergencyContacts(userData.emergencyContacts || []);
+                }
+            });
+        }
+
+        function loadEmergencyContacts(contacts) {
+            const container = document.getElementById('emergency-contacts-list');
+            container.innerHTML = '';
+            
+            if (contacts.length === 0) {
+                container.innerHTML = '<p style="color: #cccccc; text-align: center; padding: 20px;">No emergency contacts added yet.</p>';
+                return;
+            }
+
+            contacts.forEach((contact, index) => {
+                const contactDiv = document.createElement('div');
+                contactDiv.className = 'emergency-contact-item';
+                contactDiv.innerHTML = `
+                    <div class="emergency-contact-info">
+                        <div class="emergency-contact-name">${contact.name}</div>
+                        <div class="emergency-contact-phone">${contact.phone}</div>
+                    </div>
+                    <div class="emergency-contact-actions">
+                        <button class="btn btn-secondary btn-small" onclick="editEmergencyContact(${index})">Edit</button>
+                        <button class="btn btn-danger btn-small" onclick="deleteEmergencyContact(${index})">Delete</button>
+                    </div>
+                `;
+                container.appendChild(contactDiv);
+            });
+        }
+
+        function updateProfile() {
+            const name = document.getElementById('profile-name').value;
+            const phone = document.getElementById('profile-phone').value;
+
+            if (!name) {
+                showMessage('profile-messages', 'Name is required', 'error');
+                return;
+            }
+
+            // Get current emergency contacts
+            const db = firebase.database();
+            db.ref('users/' + currentUser.uid).once('value').then(snapshot => {
+                const userData = snapshot.val();
+                const emergencyContacts = userData ? userData.emergencyContacts || [] : [];
+
+                db.ref('users/' + currentUser.uid).update({
+                    name: name,
+                    phone: phone,
+                    emergencyContacts: emergencyContacts,
+                    updatedAt: firebase.database.ServerValue.TIMESTAMP
+                })
+                .then(() => {
+                    showMessage('profile-messages', 'Profile updated successfully!', 'success');
+                })
+                .catch(error => {
+                    showMessage('profile-messages', 'Failed to update profile: ' + error.message, 'error');
+                });
+            });
+        }
+
+        function loadUserReports() {
+            if (!currentUser) return;
+
+            const db = firebase.database();
+            db.ref('emergencyReports').orderByChild('userId').equalTo(currentUser.uid).once('value').then(snapshot => {
+                const reportsList = document.getElementById('user-reports-list');
+                reportsList.innerHTML = '';
+
+                if (!snapshot.exists()) {
+                    reportsList.innerHTML = '<p style="color: #cccccc; text-align: center; padding: 20px;">No emergency reports found.</p>';
+                    return;
+                }
+
+                const reports = [];
+                snapshot.forEach(childSnapshot => {
+                    reports.push({ id: childSnapshot.key, ...childSnapshot.val() });
+                });
+
+                // Sort by timestamp
+                reports.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+                reports.forEach(report => {
+                    const reportCard = createReportCard(report, report.id, true);
+                    reportsList.appendChild(reportCard);
+                });
+            });
+        }
+
+        // Rescue Dashboard Functions
+
+        // Settings Functions
+        function saveSettings() {
+            const notificationsEnabled = document.getElementById('notifications-enabled').checked;
+            const emailNotifications = document.getElementById('email-notifications').checked;
+            const autoLocation = document.getElementById('auto-location').checked;
+
+            // Save settings to user profile
+            const db = firebase.database();
+            db.ref('users/' + currentUser.uid).update({
+                settings: {
+                    notificationsEnabled: notificationsEnabled,
+                    emailNotifications: emailNotifications,
+                    autoLocation: autoLocation
+                },
+                updatedAt: firebase.database.ServerValue.TIMESTAMP
+            })
+            .then(() => {
+                showMessage('settings-messages', 'Settings saved successfully!', 'success');
+            })
+            .catch(error => {
+                showMessage('settings-messages', 'Failed to save settings: ' + error.message, 'error');
+            });
+        }
+
+        function changePassword() {
+            const newPassword = prompt('Enter new password:');
+            if (newPassword && newPassword.length >= 6) {
+                currentUser.updatePassword(newPassword)
+                    .then(() => {
+                        showMessage('settings-messages', 'Password updated successfully!', 'success');
+                    })
+                    .catch(error => {
+                        showMessage('settings-messages', 'Failed to update password: ' + error.message, 'error');
+                    });
+            } else if (newPassword) {
+                showMessage('settings-messages', 'Password must be at least 6 characters long', 'error');
+            }
+        }
+
+        function deleteAccount() {
+            if (confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+                // Delete user data
+                const db = firebase.database();
+                db.ref('users/' + currentUser.uid).remove()
+                    .then(() => {
+                        // Delete user account
+                        return currentUser.delete();
+                    })
+                    .then(() => {
+                        showMessage('settings-messages', 'Account deleted successfully', 'success');
+                        showLoginInterface();
+                    })
+                    .catch(error => {
+                        showMessage('settings-messages', 'Failed to delete account: ' + error.message, 'error');
+                    });
+            }
+        }
+
+        // Utility Functions
+        function showMessage(containerId, message, type) {
+            const container = document.getElementById(containerId);
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message message-${type}`;
+            messageDiv.textContent = message;
+            
+            container.innerHTML = '';
+            container.appendChild(messageDiv);
+            
+            // Auto-hide success messages
+            if (type === 'success') {
+                setTimeout(() => {
+                    messageDiv.remove();
+                }, 5000);
+            }
+        }
+
+        // Auto-location for emergency reports if enabled
+        function checkAutoLocation() {
+            const db = firebase.database();
+            db.ref('users/' + currentUser.uid).once('value').then(snapshot => {
+                if (snapshot.exists() && snapshot.val().settings && snapshot.val().settings.autoLocation) {
+                    getCurrentLocation();
+                }
+            });
+        }
+
+        // Initialize auto-location when user home tab is shown
+        document.getElementById('user-home-tab').addEventListener('click', function() {
+            setTimeout(checkAutoLocation, 500);
+        });
+
+        // Emergency Contact Management
+        let emergencyContacts = [];
+
+        function addEmergencyContact() {
+            if (emergencyContacts.length >= 3) {
+                showMessage('profile-messages', 'Maximum 3 emergency contacts allowed', 'error');
+                return;
+            }
+
+            const name = prompt('Enter emergency contact name:');
+            if (!name) return;
+
+            const phone = prompt('Enter emergency contact phone number:');
+            if (!phone) return;
+
+            const newContact = { name: name, phone: phone };
+            emergencyContacts.push(newContact);
+
+            // Update in database
+            const db = firebase.database();
+            db.ref('users/' + currentUser.uid).update({
+                emergencyContacts: emergencyContacts,
+                updatedAt: firebase.database.ServerValue.TIMESTAMP
+            }).then(() => {
+                loadEmergencyContacts(emergencyContacts);
+                showMessage('profile-messages', 'Emergency contact added successfully!', 'success');
+            });
+        }
+
+        function editEmergencyContact(index) {
+            const contact = emergencyContacts[index];
+            const newName = prompt('Enter new name:', contact.name);
+            if (!newName) return;
+
+            const newPhone = prompt('Enter new phone number:', contact.phone);
+            if (!newPhone) return;
+
+            emergencyContacts[index] = { name: newName, phone: newPhone };
+
+            // Update in database
+            const db = firebase.database();
+            db.ref('users/' + currentUser.uid).update({
+                emergencyContacts: emergencyContacts,
+                updatedAt: firebase.database.ServerValue.TIMESTAMP
+            }).then(() => {
+                loadEmergencyContacts(emergencyContacts);
+                showMessage('profile-messages', 'Emergency contact updated successfully!', 'success');
+            });
+        }
+
+        function deleteEmergencyContact(index) {
+            if (confirm('Are you sure you want to delete this emergency contact?')) {
+                emergencyContacts.splice(index, 1);
+
+                // Update in database
+                const db = firebase.database();
+                db.ref('users/' + currentUser.uid).update({
+                    emergencyContacts: emergencyContacts,
+                    updatedAt: firebase.database.ServerValue.TIMESTAMP
+                }).then(() => {
+                    loadEmergencyContacts(emergencyContacts);
+                    showMessage('profile-messages', 'Emergency contact deleted successfully!', 'success');
+                });
+            }
+        }
+
+        // Profile Completion Functions
+        function isProfileComplete() {
+            const name = document.getElementById('profile-name').value;
+            const phone = document.getElementById('profile-phone').value;
+            return name && phone;
+        }
+
+        function showProfileCompletionPopup() {
+            const popup = document.createElement('div');
+            popup.className = 'profile-popup';
+            popup.innerHTML = `
+                <div class="profile-popup-content">
+                    <h3>⚠️ Complete Your Profile</h3>
+                    <p>Please complete your profile information before submitting an emergency report. This helps rescue teams identify you quickly.</p>
+                    <div style="margin-top: 20px;">
+                        <button class="btn btn-primary" onclick="closeProfilePopup(); showTab('profile')">Complete Profile</button>
+                        <button class="btn btn-secondary" onclick="closeProfilePopup()" style="margin-left: 10px;">Cancel</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(popup);
+        }
+
+        function closeProfilePopup() {
+            const popup = document.querySelector('.profile-popup');
+            if (popup) {
+                popup.remove();
+            }
+        }
+
+        // Status Dashboard Functions
+        function loadStatusDashboard() {
+            if (!currentUser) return;
+
+            const db = firebase.database();
+            
+            // Load user's emergency reports
+            db.ref('emergencyReports').orderByChild('userId').equalTo(currentUser.uid).once('value').then(snapshot => {
+                const reports = snapshot.val() || {};
+                const reportsArray = Object.values(reports);
+                
+                displayUserReports(reportsArray);
+            });
+        }
+
+        function displayUserReports(reports) {
+            const container = document.getElementById('user-emergency-reports');
+            
+            if (reports.length === 0) {
+                container.innerHTML = '<p style="color: #cccccc; text-align: center; padding: 40px;">No emergency reports found. Submit your first report from the Home tab.</p>';
+                return;
+            }
+
+            // Sort by timestamp (newest first)
+            const sortedReports = reports.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+            let html = '';
+            sortedReports.forEach(report => {
+                const date = new Date(report.timestamp || report.createdAt).toLocaleString();
+                const statusClass = report.status === 'rescued' ? 'status-rescued' : 
+                                  report.status === 'assigned' ? 'status-assigned' : 
+                                  report.status === 'accepted' ? 'status-accepted' : 'status-pending';
+                
+                const statusText = report.status === 'accepted' ? 'Accepted' : 
+                                 report.status === 'assigned' ? 'Team Assigned' :
+                                 report.status === 'rescued' ? 'Rescued' : 'Pending';
+                
+                html += `
+                    <div class="report-card">
+                        <div class="report-header">
+                            <div>
+                                <div class="report-title">${report.disasterType.toUpperCase()}</div>
+                                <div style="color: #cccccc; font-size: 14px;">${date}</div>
+                            </div>
+                            <span class="report-status ${statusClass}">${statusText}</span>
+                        </div>
+                        
+                        <div class="report-details">
+                            <div class="report-detail"><strong>Location:</strong> ${report.location}</div>
+                            ${report.locationName ? `<div class="report-detail"><strong>📍 Address:</strong> ${report.locationName}</div>` : ''}
+                            <div class="report-detail"><strong>Description:</strong> ${report.description}</div>
+                            ${report.coordinates ? `<div class="report-detail"><strong>Coordinates:</strong> ${report.coordinates.lat}, ${report.coordinates.lng}</div>` : ''}
+                            ${report.estimatedTime ? `<div class="report-detail"><strong>Estimated Help Time:</strong> ${report.estimatedTime}</div>` : ''}
+                            ${report.teamInfo ? `<div class="report-detail"><strong>Rescue Team:</strong> ${report.teamInfo}</div>` : ''}
+                            ${report.updateMessage ? `<div class="report-detail"><strong>Update:</strong> ${report.updateMessage}</div>` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+    </script>
+</body>
+</html>
